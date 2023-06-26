@@ -1,10 +1,10 @@
 class CampersController < ApplicationController
-    rescue_from ActiveRecord::RecordNotFound, with: :render_not_found_response
+    rescue_from ActiveRecord::RecordNotFound, with: :render_record_not_found_response
     rescue_from ActiveRecord::RecordInvalid, with: :render_record_invalid_response
     
     def index 
         campers = Camper.all 
-        render json: campers
+        render json: campers.to_json(except: :activities)
     end 
 
     def show 
@@ -19,7 +19,7 @@ class CampersController < ApplicationController
 
     private 
 
-    def render_not_found_response 
+    def render_record_not_found_response 
         render json: { error: "Camper not found"}, status: :not_found
     end 
 
@@ -27,8 +27,8 @@ class CampersController < ApplicationController
         params.permit(:name, :age)
     end 
 
-    def render_record_invalid_response(exception)
-        render json: { error: exception.record.errors.full_messages }, status: :unprocessable_entity
+    def render_record_invalid_response(invalid)
+        render json: { error: invalid.record.errors.full_messages }, status: :unprocessable_entity
     end 
 
 end
